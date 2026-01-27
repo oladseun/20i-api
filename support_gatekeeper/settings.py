@@ -156,6 +156,9 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
 
+print(f"[SETTINGS] 📧 Configuring Email Backend: {EMAIL_BACKEND}")
+print(f"[SETTINGS] 📧 Email User: {EMAIL_HOST_USER[:3]}***" if EMAIL_HOST_USER else "[SETTINGS] ❌ EMAIL_HOST_USER IS MISSING")
+
 # 20i API Configuration
 TWENTYI_API_TOKEN = os.getenv('TWENTYI_API_TOKEN', '')
 TWENTYI_API_BASE_URL = 'https://api.20i.com'
