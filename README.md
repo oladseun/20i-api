@@ -1,15 +1,42 @@
-# Support Gatekeeper - Secure Authentication with 20i & Intercom
+# 20i Support Gatekeeper
 
-A Django-based authentication system that verifies users via the 20i Reseller API, sends OTP codes via email, and provides a secure dashboard with Intercom Chat Widget in Secure Mode.
+This application provides a secure way for your clients to authenticate using their 20i hosting email and access support services (like Intercom chat) without needing a separate login.
 
 ## Features
 
-- ✅ Email-based user verification via 20i Reseller API
-- ✅ 4-digit OTP code generation and email delivery
-- ✅ Session-based authentication
-- ✅ Intercom Secure Mode with HMAC-SHA256 hash
-- ✅ Modern, responsive UI design
-- ✅ Secure logout functionality
+- **Secure Login**: Verifies email against your 20i Reseller account.
+- **OTP Verification**: Sends a one-time code to the user's email for secure access.
+- **Intercom Integration**: Securely loads Intercom Messenger with user details (HMAC signature support).
+- **No Database**: Uses 20i API as the source of truth for user data.
+
+## 🚀 How to Let Others Test It (Easy Deployment)
+
+To let a non-technical person test this, you can deploy it to **Render.com** (free tier).
+
+### Quick Deployment Steps
+
+1. **Push to GitHub** (Make sure your code is on GitHub first).
+2. Go to [Render.com](https://render.com) and sign up/login.
+3. Click **New +** -> **Web Service**.
+4. Connect your GitHub repository.
+5. Scroll down to **Environment Variables** and add:
+   - `TWENTYI_API_TOKEN`: Your base64 encoded API key.
+   - `INTERCOM_APP_ID`: Your Intercom App ID.
+   - `INTERCOM_SECRET_KEY`: Your Intercom Secret Key.
+   - `SECRET_KEY`: Generate a random string (e.g., `django-insecure-test-key`).
+   - `DEBUG`: `False`
+6. Click **Create Web Service**.
+
+Once deployed, Render will give you a URL (e.g., `https://gatekeeper-xyz.onrender.com`). Send that link to anyone, and they can test it!
+
+## Local Development
+
+If you are a developer:
+
+1. Clone the repo.
+2. `pip install -r requirements.txt`
+3. Create `.env` file with your keys.
+4. `python manage.py runserver`
 
 ## Tech Stack
 
