@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Environment variables
+.env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+
+# Temp files
+*.tmp
+dump_full_response.py
+debug_endpoints.py
+inspect_package.py
+inspect_stackusers.py
+inspect_susers.py
+simulate_login.py
+test_all_tokens.py
+test_api.py
+test_endpoints.py
+test_reseller_users.py
+test_user_endpoint.py
+verify_django_env.py
+api_response_dump.json
