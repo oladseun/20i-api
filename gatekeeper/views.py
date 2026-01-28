@@ -8,6 +8,9 @@ from django.core.mail import send_mail
 from django.contrib import messages
 
 
+from django.contrib.auth.models import User
+from django.contrib.auth import login, logout
+
 def login_view(request):
     """
     Step 1: Login View - Email Input
@@ -202,8 +205,8 @@ def verify_otp_view(request):
     """
     Step 2: Verify OTP View - OTP Input
     
-    Validates the OTP code against session data and
-    marks user as verified.
+    Validates the OTP code against session data,
+    Creates/Updates local Django User, and Logs them in.
     """
     # Check if OTP exists in session
     if 'otp' not in request.session:
@@ -219,14 +222,42 @@ def verify_otp_view(request):
         
         # Validate OTP
         if entered_otp == request.session.get('otp'):
-            # Mark user as verified
-            request.session['verified'] = True
+            # Retrieve data from temporary session
+            user_id = request.session.get('user_id')
+            email = request.session.get('user_email')
+            name = request.session.get('user_name', '')
             
-            # Clear OTP from session (no longer needed)
-            del request.session['otp']
+            # Split name for User object
+            name_parts = name.split(' ', 1)
+            first_name = name_parts[0]
+            last_name = name_parts[1] if len(name_parts) > 1 else ''
             
-            messages.success(request, 'Verification successful! Welcome to your dashboard.')
-            return redirect('dashboard')
+            # --- PHASE 1 REFINEMENT: Create/Update Django User ---
+            try:
+                # Use 20i ID as username to ensure uniqueness map
+                user, created = User.objects.get_or_create(username=str(user_id))
+                
+                # Update attributes (in case they changed on 20i)
+                user.email = email
+                user.first_name = first_name
+                user.last_name = last_name
+                user.save()
+                
+                # Start Django Session
+                login(request, user)
+                print(f"[AUTH] User {user.username} logged in successfully.")
+                
+                # Clear temporary OTP data
+                del request.session['otp']
+                
+                messages.success(request, 'Verification successful! Welcome to your dashboard.')
+                return redirect('dashboard')
+                
+            except Exception as e:
+                print(f"[ERROR] Failed to creating user: {e}")
+                messages.error(request, f"Login failed (Database Error): {e}")
+                return redirect('login')
+            
         else:
             messages.error(request, 'Invalid verification code. Please try again.')
             return render(request, 'gatekeeper/verify_otp.html')
@@ -241,15 +272,16 @@ def dashboard_view(request):
     Protected dashboard that displays Intercom widget with
     secure mode (HMAC-SHA256 hash).
     """
-    # Check if user is verified
-    if not request.session.get('verified'):
+    # Check if user is authenticated (via Django Auth)
+    if not request.user.is_authenticated:
         messages.error(request, 'Please login to access the dashboard.')
         return redirect('login')
     
-    # Get user data from session
-    user_id = request.session.get('user_id')
-    user_email = request.session.get('user_email')
-    user_name = request.session.get('user_name')
+    # Get user data from Django User object
+    user = request.user
+    user_id = user.username  # We stored 20i ID as username
+    user_email = user.email
+    user_name = user.get_full_name() or user.email.split('@')[0]
     
     # Generate Intercom user_hash using HMAC-SHA256
     user_hash = hmac.new(
@@ -273,6 +305,6 @@ def logout_view(request):
     """
     Logout view - clears session and redirects to login
     """
-    request.session.flush()
+    logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('login')
