@@ -314,3 +314,45 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('login')
+
+
+from .forms import TicketForm
+from services.intercom import create_ticket
+
+def create_ticket_view(request):
+    """
+    Step 4: Create Ticket View (Phase 3)
+    
+    Displays a form to create a new ticket and submits it via Intercom API.
+    """
+    # Check if user is authenticated
+    if not request.user.is_authenticated:
+        messages.error(request, 'Please login to create a ticket.')
+        return redirect('login')
+        
+    if request.method == 'POST':
+        form = TicketForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            # Use the user's username (which is the 20i ID) as the user_id
+            success, result = create_ticket(
+                user_id=user.username,
+                email=user.email,
+                subject=form.cleaned_data['subject'],
+                body=form.cleaned_data['message'],
+                priority=form.cleaned_data['priority']
+            )
+            
+            if success:
+                messages.success(request, 'Ticket created successfully! Support will respond shortly.')
+                return redirect('dashboard')
+            else:
+                messages.error(request, f'Failed to create ticket: {result}')
+    else:
+        form = TicketForm()
+        
+    context = {
+        'form': form,
+        'user_name': request.user.get_full_name() or request.user.email
+    }
+    return render(request, 'gatekeeper/create_ticket.html', context)

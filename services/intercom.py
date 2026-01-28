@@ -70,6 +70,41 @@ def fetch_user_conversations(user_id):
             print(f"[ERROR] Intercom API Error: {response.status_code} - {response.text}")
             return []
             
+
+def create_ticket(user_id, email, subject, body, priority):
+    """
+    Creates a new conversation in Intercom on behalf of the user.
+    """
+    if not settings.INTERCOM_ACCESS_TOKEN:
+        return False, "Missing API Token"
+
+    url = "https://api.intercom.io/conversations"
+    headers = {
+        "Authorization": f"Bearer {settings.INTERCOM_ACCESS_TOKEN}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+
+    # Intercom API structure for user-initiated conversation
+    payload = {
+        "from": {
+            "type": "user",
+            "user_id": str(user_id)
+        },
+        "body": f"[{priority.upper()} PRIORITY] {subject}\n\n{body}"
+    }
+
+    try:
+        print(f"[DEBUG] Creating Intercom ticket for {user_id}: {subject}")
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        
+        if response.status_code == 200:
+            print("[SUCCESS] Ticket created.")
+            return True, response.json().get('id')
+        else:
+            print(f"[ERROR] API Error: {response.status_code} - {response.text}")
+            return False, f"API Error: {response.status_code}"
+            
     except requests.RequestException as e:
-        print(f"[ERROR] Intercom Connection Error: {e}")
-        return []
+        print(f"[ERROR] Connection Error: {e}")
+        return False, str(e)
