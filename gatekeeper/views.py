@@ -138,7 +138,14 @@ def login_view(request):
             otp = str(random.randint(1000, 9999))
             
             # Store OTP and user data in session
-            # Store OTP and user data in session
+            # Construct name
+            first_name = user_found.get('firstName', '')
+            last_name = user_found.get('lastName', '')
+            if first_name or last_name:
+                name = f"{first_name} {last_name}".strip()
+            else:
+                name = user_found.get('person_name', email.split('@')[0])
+                
             request.session['otp'] = otp
             request.session['user_email'] = email
             request.session['user_id'] = found_user_id
