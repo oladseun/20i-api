@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+import socket
+from pathlib import Path
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -148,15 +149,26 @@ SESSION_COOKIE_AGE = 1800  # 30 minutes
 SESSION_SAVE_EVERY_REQUEST = True
 
 # Email configuration (SMTP for Gmail)
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# Email configuration (SMTP for Gmail)
+# Force IPv4 Resolution to avoid [Errno 101] Network is unreachable (IPv6 issues on Render)
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
+try:
+    # Resolve to first available IPv4 address
+    addr_info = socket.getaddrinfo('smtp.gmail.com', 587, family=socket.AF_INET)
+    if addr_info:
+        EMAIL_HOST = addr_info[0][4][0]
+        print(f"[SETTINGS] 🌍 Resolved Gmail SMTP to IPv4: {EMAIL_HOST}")
+except Exception as e:
+    print(f"[SETTINGS] ⚠️ Failed to resolve Gmail IPv4: {e}")
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
-EMAIL_TIMEOUT = 10  # Timeout in seconds to prevent worker freeze
+EMAIL_TIMEOUT = 10  # Timeout to prevent worker freeze
 
 print(f"[SETTINGS] 📧 Configuring Email Backend: {EMAIL_BACKEND} (Port: {EMAIL_PORT})")
 print(f"[SETTINGS] 📧 Email Host User: {EMAIL_HOST_USER}")
