@@ -156,6 +156,7 @@ EMAIL_USE_SSL = False
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
+EMAIL_TIMEOUT = 10  # Timeout in seconds to prevent worker freeze
 
 print(f"[SETTINGS] 📧 Configuring Email Backend: {EMAIL_BACKEND} (Port: {EMAIL_PORT})")
 print(f"[SETTINGS] 📧 Email Host User: {EMAIL_HOST_USER}")
