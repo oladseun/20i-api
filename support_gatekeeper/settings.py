@@ -175,3 +175,7 @@ TWENTYI_API_BASE_URL = 'https://api.20i.com'
 # Intercom Configuration
 INTERCOM_SECRET_KEY = os.getenv('INTERCOM_SECRET_KEY', '')
 INTERCOM_APP_ID = os.getenv('INTERCOM_APP_ID', '')
+INTERCOM_ACCESS_TOKEN = os.getenv('INTERCOM_ACCESS_TOKEN', '')
+
+if not INTERCOM_ACCESS_TOKEN:
+    print("[WARNING] INTERCOM_ACCESS_TOKEN is missing. Ticket features will not work.")
