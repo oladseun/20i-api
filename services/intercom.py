@@ -70,6 +70,9 @@ def fetch_user_conversations(user_id):
             print(f"[ERROR] Intercom API Error: {response.status_code} - {response.text}")
             return []
             
+    except requests.RequestException as e:
+        print(f"[ERROR] Intercom Connection Error: {e}")
+        return []
 
 def create_ticket(user_id, email, subject, body, priority):
     """
