@@ -154,6 +154,12 @@ def login_view(request):
             
             print(f"[DEBUG] Session updated. Sending OTP to {email}")
             
+            # ALWAYS Log OTP to console as fallback for production debugging
+            print(f"==========================================")
+            print(f"🔐 [OTP SECURITY] User: {email}")
+            print(f"🔑 [OTP CODE]     {otp}")
+            print(f"==========================================")
+            
             # Send OTP via Email
             try:
                 print(f"[DEBUG] Attempting to send email via {settings.EMAIL_BACKEND}...")
@@ -165,6 +171,7 @@ def login_view(request):
                     fail_silently=False,
                 )
                 print(f"[DEBUG] Email sent successfully to {email}")
+                messages.success(request, f'A verification code has been sent to {email}')
             except Exception as e:
                 print(f"[ERROR] Failed to send email: {str(e)}")
                 # Log usage of what credentials (masked)
@@ -172,10 +179,11 @@ def login_view(request):
                 pass_val = "Set" if settings.EMAIL_HOST_PASSWORD else "Not Set"
                 print(f"[DEBUG] Credential status - User: {user_val}, Pass: {pass_val}")
                 
-                messages.error(request, f"System error sending email. Please contact support. (Ref: {type(e).__name__})")
-                return render(request, 'gatekeeper/login.html')
+                # In production with strict firewalls, email might fail. 
+                # We allow proceeding if we can access logs.
+                messages.warning(request, f"Email delivery failed (Network Error). Please ask admin for the code from server logs. (Ref: {type(e).__name__})")
             
-            messages.success(request, f'A verification code has been sent to {email}')
+            # Always redirect to verify page so user can enter code if they found it in logs
             return redirect('verify_otp')
             
         except requests.RequestException as e:
