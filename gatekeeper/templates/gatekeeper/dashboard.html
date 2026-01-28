@@ -203,6 +203,66 @@
             </div>
         </div>
 
+        <!-- Ticket History Section (Phase 2) -->
+        <div class="welcome-card" style="margin-top: 32px; padding: 0; overflow: hidden;">
+            <div
+                style="padding: 24px; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="font-size: 20px; margin: 0;">My Past Tickets</h2>
+                <a href="{% url 'create_ticket' %}" class="chat-btn"
+                    style="padding: 8px 16px; font-size: 14px; text-decoration: none; display: inline-block;">
+                    + New Ticket
+                </a>
+            </div>
+
+            {% if tickets %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f7fafc; color: #718096; font-size: 13px; text-transform: uppercase;">
+                            <th style="padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">Status</th>
+                            <th style="padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">Subject</th>
+                            <th style="padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">Updated</th>
+                            <th style="padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr style="border-bottom: 1px solid #edf2f7; transition: background 0.2s;"
+                            onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='white'">
+                            <td style="padding: 16px 24px;">
+                                <span style="
+                                    background: {% if ticket.status_color == 'green' %}#c6f6d5{% else %}#ebf8ff{% endif %}; 
+                                    color: {% if ticket.status_color == 'green' %}#22543d{% else %}#2c5282{% endif %};
+                                    padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                                    {{ ticket.status }}
+                                </span>
+                            </td>
+                            <td style="padding: 16px 24px; font-weight: 500; color: #2d3748;">
+                                {{ ticket.subject }}
+                            </td>
+                            <td style="padding: 16px 24px; color: #718096;">
+                                <script>document.write(new Date({{ ticket.updated_at }} * 1000).toLocaleDateString());</script>
+                            </td>
+                            <td style="padding: 16px 24px;">
+                                <button onclick="Intercom('showConversation', '{{ ticket.id }}');" style="
+                                    background: white; border: 1px solid #e2e8f0; color: #4a5568; 
+                                    padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                                    View Chat
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="padding: 40px; text-align: center; color: #718096;">
+                <p>No ticket history found via API.</p>
+                <p style="font-size: 14px; margin-top: 8px;">Start a new conversation to get help!</p>
+            </div>
+            {% endif %}
+        </div>
+
         <div class="support-section">
             <h3>Need Help?</h3>
             <p>Our support team is ready to assist you. Click the chat icon in the bottom-right corner to start a

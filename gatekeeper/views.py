@@ -265,12 +265,14 @@ def verify_otp_view(request):
     return render(request, 'gatekeeper/verify_otp.html')
 
 
+from services.intercom import fetch_user_conversations
+
 def dashboard_view(request):
     """
     Step 3: Dashboard View - Intercom Secure Mode
     
     Protected dashboard that displays Intercom widget with
-    secure mode (HMAC-SHA256 hash).
+    secure mode (HMAC-SHA256 hash) and Ticket History.
     """
     # Check if user is authenticated (via Django Auth)
     if not request.user.is_authenticated:
@@ -290,12 +292,16 @@ def dashboard_view(request):
         hashlib.sha256
     ).hexdigest()
     
+    # Fetch Ticket History (Phase 2)
+    tickets = fetch_user_conversations(user_id)
+    
     context = {
         'user_id': user_id,
         'user_email': user_email,
         'user_name': user_name,
         'user_hash': user_hash,
         'intercom_app_id': settings.INTERCOM_APP_ID,
+        'tickets': tickets,
     }
     
     return render(request, 'gatekeeper/dashboard.html', context)
