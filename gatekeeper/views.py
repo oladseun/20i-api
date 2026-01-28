@@ -138,28 +138,35 @@ def login_view(request):
             otp = str(random.randint(1000, 9999))
             
             # Store OTP and user data in session
+            # Store OTP and user data in session
             request.session['otp'] = otp
             request.session['user_email'] = email
             request.session['user_id'] = found_user_id
-            
-            # Construct name
-            first_name = user_found.get('firstName', '')
-            last_name = user_found.get('lastName', '')
-            if first_name or last_name:
-                name = f"{first_name} {last_name}".strip()
-            else:
-                name = user_found.get('person_name', email.split('@')[0])
-                
             request.session['user_name'] = name
+            request.session.modified = True
             
-            # Send OTP via email (console backend for development)
-            send_mail(
-                subject='Your Support Gatekeeper Login Code',
-                message=f'Your verification code is: {otp}\n\nThis code will expire in 30 minutes.',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,
-            )
+            print(f"[DEBUG] Session updated. Sending OTP to {email}")
+            
+            # Send OTP via Email
+            try:
+                print(f"[DEBUG] Attempting to send email via {settings.EMAIL_BACKEND}...")
+                send_mail(
+                    subject='Your Support Gatekeeper Login Code',
+                    message=f'Your verification code is: {otp}\n\nThis code will expire in 30 minutes.',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+                print(f"[DEBUG] Email sent successfully to {email}")
+            except Exception as e:
+                print(f"[ERROR] Failed to send email: {str(e)}")
+                # Log usage of what credentials (masked)
+                user_val = settings.EMAIL_HOST_USER or "None"
+                pass_val = "Set" if settings.EMAIL_HOST_PASSWORD else "Not Set"
+                print(f"[DEBUG] Credential status - User: {user_val}, Pass: {pass_val}")
+                
+                messages.error(request, f"System error sending email. Please contact support. (Ref: {type(e).__name__})")
+                return render(request, 'gatekeeper/login.html')
             
             messages.success(request, f'A verification code has been sent to {email}')
             return redirect('verify_otp')
