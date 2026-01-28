@@ -148,30 +148,20 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 1800  # 30 minutes
 SESSION_SAVE_EVERY_REQUEST = True
 
-# Email configuration (SMTP for Gmail)
-# Email configuration (SMTP for Gmail)
-# Force IPv4 Resolution to avoid [Errno 101] Network is unreachable (IPv6 issues on Render)
-EMAIL_HOST = 'smtp.gmail.com'
-try:
-    # Resolve to first available IPv4 address
-    addr_info = socket.getaddrinfo('smtp.gmail.com', 587, family=socket.AF_INET)
-    if addr_info:
-        EMAIL_HOST = addr_info[0][4][0]
-        print(f"[SETTINGS] 🌍 Resolved Gmail SMTP to IPv4: {EMAIL_HOST}")
-except Exception as e:
-    print(f"[SETTINGS] ⚠️ Failed to resolve Gmail IPv4: {e}")
-
+# Email configuration (Custom SMTP)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
-EMAIL_TIMEOUT = 10  # Timeout to prevent worker freeze
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+EMAIL_TIMEOUT = 10  # Timeout in seconds to prevent worker freeze
 
-print(f"[SETTINGS] 📧 Configuring Email Backend: {EMAIL_BACKEND} (Port: {EMAIL_PORT})")
-print(f"[SETTINGS] 📧 Email Host User: {EMAIL_HOST_USER}")
+print(f"[SETTINGS] 📧 Configuring Email Backend: {EMAIL_BACKEND}")
+print(f"[SETTINGS] 📧 Host: {EMAIL_HOST}:{EMAIL_PORT} (TLS: {EMAIL_USE_TLS}, SSL: {EMAIL_USE_SSL})")
+print(f"[SETTINGS] 📧 Sending as: {DEFAULT_FROM_EMAIL}")
 
 # 20i API Configuration
 TWENTYI_API_TOKEN = os.getenv('TWENTYI_API_TOKEN', '')
