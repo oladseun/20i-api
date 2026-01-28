@@ -91,11 +91,78 @@
             text-transform: uppercase;
         }
 
-        .iframe-container {
+        .portal-container {
             flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f4f8;
+            padding: 20px;
+        }
+
+        .portal-card {
             background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            max-width: 500px;
             width: 100%;
-            height: 100%;
+        }
+
+        .icon-circle {
+            width: 64px;
+            height: 64px;
+            background: #ebf8ff;
+            color: #3182ce;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 24px auto;
+        }
+
+        .portal-card h2 {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+
+        .portal-card p {
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .primary-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 16px;
+            transition: background 0.2s;
+        }
+
+        .primary-btn:hover {
+            background: #5a67d8;
+        }
+
+        .secondary-link {
+            display: block;
+            color: #718096;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .secondary-link:hover {
+            color: #4a5568;
+            text-decoration: underline;
         }
 
         /* Overlay messages so they don't break layout */
